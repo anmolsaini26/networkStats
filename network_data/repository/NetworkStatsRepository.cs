@@ -1,6 +1,8 @@
-using Npgsql;
-using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Dapper;
+using Npgsql;
+using NetworkData.DTOs;
 
 namespace NetworkData.Repositories
 {
@@ -13,30 +15,15 @@ namespace NetworkData.Repositories
             _connectionString = connectionString;
         }
 
-        public async Task<int> GetTotalCountByNr5gAsync(int nr_5g)
+        public async Task<IEnumerable<(string Version, int NrRsrp, int NrSnr)>> GetVersionStatsAsync()
         {
-            int count = 0;
+            using var connection = new NpgsqlConnection(_connectionString);
+            var query = @"
+                SELECT version, nr_rsrp, nr_snr 
+                FROM network_data 
+                WHERE is_nr_5g = 1";
 
-            try
-            {
-                using var connection = new NpgsqlConnection(_connectionString);
-                await connection.OpenAsync();
-
-                string query = "SELECT COUNT(*) FROM network_data WHERE is_nr_5g = @nr_5g";
-
-                using var command = new NpgsqlCommand(query, connection);
-                command.Parameters.AddWithValue("@nr_5g", nr_5g);
-
-                // Use Convert.ToInt32 to handle the cast
-                count = Convert.ToInt32(await command.ExecuteScalarAsync());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error executing query: {ex.Message}");
-                throw;
-            }
-
-            return count;
+            return await connection.QueryAsync<(string Version, int NrRsrp, int NrSnr)>(query);
         }
     }
 }
