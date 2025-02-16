@@ -5,6 +5,6 @@ namespace NetworkData.Repositories
 {
     public interface INetworkStatsRepository
     {
-        Task<IEnumerable<(string Version, int NrRsrp, int NrSnr)>> GetVersionStatsAsync();
+        Task<IEnumerable<(string Version, int NrRsrp, int NrSnr)>> GetVersionStatsAsync(int is_nr_5g);
     }
 }

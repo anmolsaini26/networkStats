@@ -14,9 +14,9 @@ namespace NetworkData.Services
             _repository = repository;
         }
 
-        public async Task<NetworkStatsDto> GetVersionStatsAsync()
+        public async Task<NetworkStatsDto> GetVersionStatsAsync(int is_nr_5g)
         {
-            var result = await _repository.GetVersionStatsAsync();
+            var result = await _repository.GetVersionStatsAsync(is_nr_5g);
             var response = new NetworkStatsDto();
 
             foreach (var row in result)
@@ -43,6 +43,23 @@ namespace NetworkData.Services
                 }
 
                 response.IsNr5g1[row.Version].NR_RSRP[rsrpCategory].NR_SNR[snrCategory]++;
+            }
+            foreach (var versionEntry in response.IsNr5g1)
+            {
+                foreach (var rsrpEntry in versionEntry.Value.NR_RSRP)
+                {
+                    // Calculate the total from the SNR counts
+                    int total = rsrpEntry.Value.NR_SNR.Values.Sum();
+                    // Add or update the "total" key inside the same dictionary
+                    rsrpEntry.Value.NR_SNR["total"] = total;
+                }
+            }
+
+            // Compute a grand total per version (summing all RSRP category totals)
+            foreach (var versionEntry in response.IsNr5g1)
+            {
+                int grandTotal = versionEntry.Value.NR_RSRP.Values.Sum(sqs => sqs.NR_SNR["total"]);
+                versionEntry.Value.GrandTotal = grandTotal;
             }
 
             return response;

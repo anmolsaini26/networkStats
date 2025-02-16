@@ -16,9 +16,13 @@ namespace NetworkData.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetNetworkStats()
-        {
-            var result = await _networkStatsService.GetVersionStatsAsync();
+        public async Task<IActionResult> GetNetworkStats(  [FromQuery] int is_nr_5g)
+        {   
+            // if (is_nr_5g != 1)
+            // {
+            //     return BadRequest("This endpoint supports only is_nr_5g=1.");
+            // }
+            var result = await _networkStatsService.GetVersionStatsAsync(is_nr_5g);
             return Ok(result);
         }
     }
