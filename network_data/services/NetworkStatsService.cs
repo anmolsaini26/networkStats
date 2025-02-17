@@ -14,51 +14,60 @@ namespace NetworkData.Services
             _repository = repository;
         }
 
-        public async Task<NetworkStatsDto> GetVersionStatsAsync(int is_nr_5g)
+        public async Task<NetworkStatsDto> GetVersionStatsAsync(int? is_nr_5g, int? is_lte)
         {
-            var result = await _repository.GetVersionStatsAsync(is_nr_5g);
+            IEnumerable<(string Version, int Rsrp, int Snr)> result = null;
+            if(is_nr_5g.HasValue)
+            {
+                result = await _repository.GetVersionStatsAsync5G(is_nr_5g.Value);
+            }
+            else if(is_lte.HasValue)
+            {
+                result = await _repository.GetVersionStatsAsync4G(is_lte.Value);
+            }
+            
             var response = new NetworkStatsDto();
 
             foreach (var row in result)
             {
-                string rsrpCategory = CategorizeRsrp(row.NrRsrp);
-                string snrCategory = CategorizeSnr(row.NrSnr);
+                string rsrpCategory = CategorizeRsrp(row.Rsrp);
+                string snrCategory = CategorizeSnr(row.Snr);
 
-                if (!response.IsNr5g1.ContainsKey(row.Version))
+                if (!response.IsRAT.ContainsKey(row.Version))
                 {
-                    response.IsNr5g1[row.Version] = new VersionStats();
+                    response.IsRAT[row.Version] = new VersionStats();
                 }
 
-                if (!response.IsNr5g1[row.Version].NR_RSRP.ContainsKey(rsrpCategory))
+                if (!response.IsRAT[row.Version].RSRP.ContainsKey(rsrpCategory))
                 {
-                    response.IsNr5g1[row.Version].NR_RSRP[rsrpCategory] = new SignalQualityStats
+                    response.IsRAT[row.Version].RSRP[rsrpCategory] = new SignalQualityStats
                     {
-                        NR_SNR = new Dictionary<string, int>
+                        SNR = new Dictionary<string, int>
                         {
-                            { "Poor NR SNR", 0 },
-                            { "Good NR SNR", 0 },
-                            { "Very Good NR SNR", 0 }
+                            { "Poor SNR", 0 },
+                            { "Good SNR", 0 },
+                            { "Very Good SNR", 0 }
                         }
                     };
                 }
 
-                response.IsNr5g1[row.Version].NR_RSRP[rsrpCategory].NR_SNR[snrCategory]++;
+                response.IsRAT[row.Version].RSRP[rsrpCategory].SNR[snrCategory]++;
             }
-            foreach (var versionEntry in response.IsNr5g1)
+            foreach (var versionEntry in response.IsRAT)
             {
-                foreach (var rsrpEntry in versionEntry.Value.NR_RSRP)
+                foreach (var rsrpEntry in versionEntry.Value.RSRP)
                 {
                     // Calculate the total from the SNR counts
-                    int total = rsrpEntry.Value.NR_SNR.Values.Sum();
+                    int total = rsrpEntry.Value.SNR.Values.Sum();
                     // Add or update the "total" key inside the same dictionary
-                    rsrpEntry.Value.NR_SNR["total"] = total;
+                    rsrpEntry.Value.SNR["total"] = total;
                 }
             }
 
             // Compute a grand total per version (summing all RSRP category totals)
-            foreach (var versionEntry in response.IsNr5g1)
+            foreach (var versionEntry in response.IsRAT)
             {
-                int grandTotal = versionEntry.Value.NR_RSRP.Values.Sum(sqs => sqs.NR_SNR["total"]);
+                int grandTotal = versionEntry.Value.RSRP.Values.Sum(sqs => sqs.SNR["total"]);
                 versionEntry.Value.GrandTotal = grandTotal;
             }
 
@@ -68,11 +77,11 @@ namespace NetworkData.Services
         private string CategorizeRsrp(int rsrp)
         {
             if (rsrp == -74)
-                return "Very Good NR RSRP";
+                return "Very Good RSRP";
             else if (rsrp > -100 && rsrp <= -75)
-                return "Good NR RSRP";
+                return "Good RSRP";
             else if (rsrp >= -140 && rsrp <= -100)
-                return "Poor NR RSRP";
+                return "Poor RSRP";
             else
                 return "NuLL";
         }
@@ -80,11 +89,11 @@ namespace NetworkData.Services
         private string CategorizeSnr(int snr)
         {
             if (snr <= 0)
-                return "Poor NR SNR";
+                return "Poor SNR";
             else if (snr > 0 && snr <= 6)
-                return "Good NR SNR";
+                return "Good SNR";
             else if (snr > 6)
-                return "Very Good NR SNR";
+                return "Very Good SNR";
             else return "----";
         }
     }

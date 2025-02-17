@@ -5,6 +5,6 @@ namespace NetworkData.Services
 {
     public interface INetworkStatsService
     {
-        Task<NetworkStatsDto> GetVersionStatsAsync(int is_nr_5g);
+        Task<NetworkStatsDto> GetVersionStatsAsync(int? is_nr_5g, int? is_lte);
     }
 }

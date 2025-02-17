@@ -67,6 +67,7 @@ ScaffoldingReadMe.txt
 
 #.csproj
 network_data.csproj
+.env
 
 # StyleCop
 StyleCopReport.xml

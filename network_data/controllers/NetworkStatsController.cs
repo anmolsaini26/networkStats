@@ -16,14 +16,26 @@ namespace NetworkData.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetNetworkStats(  [FromQuery] int is_nr_5g)
-        {   
-            // if (is_nr_5g != 1)
-            // {
-            //     return BadRequest("This endpoint supports only is_nr_5g=1.");
-            // }
-            var result = await _networkStatsService.GetVersionStatsAsync(is_nr_5g);
+        public async Task<IActionResult> GetNetworkStats(  [FromQuery] int? is_nr_5g, [FromQuery] int? is_lte)
+        {
+            var result = await _networkStatsService.GetVersionStatsAsync(is_nr_5g, is_lte);
             return Ok(result);
+
+            // if(is_nr_5g.HasValue)   
+            // {
+            //     var result = await _networkStatsService.GetVersionStatsAsync(is_nr_5g);
+            //     return Ok(result);
+            // }
+
+            // else if(is_lte.HasValue)
+            // {
+            //     var result = await _networkStatsService.GetVersionStatsAsync(is_lte);
+            //     return Ok(result);
+            // }
+            // else
+            //     return BadRequest("Please provide a valid query parameter");
+
+            
         }
     }
 }
