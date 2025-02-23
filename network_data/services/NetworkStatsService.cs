@@ -83,7 +83,7 @@ namespace NetworkData.Services
             else if (rsrp >= -140 && rsrp <= -100)
                 return "Poor RSRP";
             else
-                return "NuLL";
+                return "Null";
         }
 
         private string CategorizeSnr(int snr)

@@ -1,0 +1,98 @@
+
+<div class="dashboard-container">
+  <!-- Left Half: 4G Data -->
+  <div class="network-container">
+    <div class="network-banner lte-banner">LTE to 5G</div>
+    
+    <div *ngIf="dataLte">
+      <div *ngFor="let device of (dataLte.isRAT | keyvalue)" class="device-container">
+        <h3>Version: {{ device.key }}</h3>
+        
+        <button mat-raised-button color="primary" (click)="openChart(device.value)" class="chart-button">
+          View Chart
+        </button>
+
+        <table mat-table [dataSource]="getRsrpEntries(device.value)" class="mat-elevation-z8 compact-table">
+          <ng-container matColumnDef="rsrp">
+            <th mat-header-cell *matHeaderCellDef> RSRP </th>
+            <td mat-cell *matCellDef="let element"> {{ element.rsrp }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="poorSNR">
+            <th mat-header-cell *matHeaderCellDef> Poor SNR </th>
+            <td mat-cell *matCellDef="let element"> {{ element.poorSNR }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="goodSNR">
+            <th mat-header-cell *matHeaderCellDef> Good SNR </th>
+            <td mat-cell *matCellDef="let element"> {{ element.goodSNR }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="veryGoodSNR">
+            <th mat-header-cell *matHeaderCellDef> Very Good SNR </th>
+            <td mat-cell *matCellDef="let element"> {{ element.veryGoodSNR }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef> Total </th>
+            <td mat-cell *matCellDef="let element"> {{ element.total }} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <p><strong>Grand Total:</strong> {{ device.value.grandTotal }}</p>
+        <hr>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Half: 5G Data -->
+  <div class="network-container">
+    <div class="network-banner nr-banner">5G to LTE</div>
+
+    <div *ngIf="dataNr">
+      <div *ngFor="let device of (dataNr.isRAT | keyvalue)" class="device-container">
+        <h3>Version: {{ device.key }}</h3>
+
+        <button mat-raised-button color="primary" (click)="openChart(device.value)" class="chart-button">
+          View Chart
+        </button>
+
+        <table mat-table [dataSource]="getRsrpEntries(device.value)" class="mat-elevation-z8 compact-table">
+          <ng-container matColumnDef="rsrp">
+            <th mat-header-cell *matHeaderCellDef> RSRP </th>
+            <td mat-cell *matCellDef="let element"> {{ element.rsrp }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="poorSNR">
+            <th mat-header-cell *matHeaderCellDef> Poor SNR </th>
+            <td mat-cell *matCellDef="let element"> {{ element.poorSNR }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="goodSNR">
+            <th mat-header-cell *matHeaderCellDef> Good SNR </th>
+            <td mat-cell *matCellDef="let element"> {{ element.goodSNR }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="veryGoodSNR">
+            <th mat-header-cell *matHeaderCellDef> Very Good SNR </th>
+            <td mat-cell *matCellDef="let element"> {{ element.veryGoodSNR }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef> Total </th>
+            <td mat-cell *matCellDef="let element"> {{ element.total }} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <p><strong>Grand Total:</strong> {{ device.value.grandTotal }}</p>
+        <hr>
+      </div>
+    </div>
+  </div>
+</div>
